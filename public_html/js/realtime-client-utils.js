@@ -111,6 +111,7 @@ rtclient.Authorizer = function(options) {
     this.clientId = rtclient.getOption(options, 'clientId');
     // Get the user ID if it's available in the state query parameter.
     this.userId = rtclient.params['userId'];
+    console.log("USER ID FROM CONSTRUCTOR: "+this.userId);
     this.authButton = document.getElementById(rtclient.getOption(options, 'authButtonElementId'));
 }
 
@@ -138,15 +139,21 @@ rtclient.Authorizer.prototype.authorize = function(onAuthComplete) {
 
     var handleAuthResult = function(authResult) {
         if (authResult && !authResult.error) {
+            console.log("AUTHENTICATION SUCCEEDED!");
             _this.authButton.disabled = true;
             _this.fetchUserId(onAuthComplete);
         } else {
+            console.log("AUTHENTICATION FAILED!");
             _this.authButton.disabled = false;
             _this.authButton.onclick = authorizeWithPopup;
         }
     };
-
+    
+    console.log("CREATING AUTHORIZE WITH POPUP!");
     var authorizeWithPopup = function() {
+        console.log("TRYING TO AUTHORIZE WITH POPUPS NOW!");
+        console.log("CLIENT ID: "+clientId);
+        console.log("USER ID: "+userId);
         gapi.auth.authorize({
             client_id: clientId,
             scope: [
@@ -160,17 +167,19 @@ rtclient.Authorizer.prototype.authorize = function(onAuthComplete) {
         console.log(clientId);
     };
 
-    // Try with no popups first.
-    gapi.auth.authorize({
-        client_id: clientId,
-        scope: [
-            rtclient.INSTALL_SCOPE,
-            rtclient.FILE_SCOPE,
-            rtclient.OPENID_SCOPE
-        ],
-        user_id: userId,
-        immediate: true
-    }, handleAuthResult);
+//    console.log("TRYING TO AUTHORIZE WITH NO POPUPS FIRST!");
+////    gapi.auth.authorize({
+////        client_id: clientId,
+////        scope: [
+////            rtclient.INSTALL_SCOPE,
+////            rtclient.FILE_SCOPE,
+////            rtclient.OPENID_SCOPE
+////        ],
+////        user_id: userId,
+////        immediate: true
+////    }, handleAuthResult);
+    _this.authButton.disabled = false;
+    _this.authButton.onclick = authorizeWithPopup;
 }
 
 
@@ -180,6 +189,7 @@ rtclient.Authorizer.prototype.authorize = function(onAuthComplete) {
  *     fetched.
  */
 rtclient.Authorizer.prototype.fetchUserId = function(callback) {
+    console.log("FETCHING USER ID!");
     var _this = this;
     gapi.client.load('oauth2', 'v2', function() {
         gapi.client.oauth2.userinfo.get().execute(function(resp) {
@@ -257,8 +267,20 @@ rtclient.redirectTo = function(fileId, userId) {
     if (userId) {
         params.push('userId=' + userId);
     }
+    
+    rtclient.params['fileId'] = fileId;
+    rtclient.params['usedId'] = userId;
+    console.log("TELLING GOOGLE TO SET FILE ID: "+fileId);
+    gapi.hangout.data.setValue("fileId", fileId);
+    
+    // FROM HERE WE REALLY JUST NEED TO RESTART THE AUTH PROCESS ME THINKS.
     // Naive URL construction.
-    window.location.href = params.length == 0 ? '/' : ('?' + params.join('&'));
+    console.log("CURRENT SEARCH: "+window.location.search);
+    console.log("CURRENT LOCATION: "+window.location.href);
+    console.log(params);
+    console.log("RESTARTING AUTH PROCESS!");
+    instance().authorizer.authButton.onclick();
+//    window.location.href = params.length == 0 ? '/' : ('?' + params.join('&'));
 }
 
 
@@ -287,7 +309,10 @@ rtclient.RealtimeLoader = function(options) {
     this.authorizer = new rtclient.Authorizer(options);
 }
 
-
+var instanceHolder;
+function instance() {
+    return instanceHolder;
+}
 /**
  * Starts the loader by authorizing.
  * @param callback {Function} afterAuth callback called after authorization.
@@ -295,13 +320,18 @@ rtclient.RealtimeLoader = function(options) {
 rtclient.RealtimeLoader.prototype.start = function(afterAuth) {
     // Bind to local context to make them suitable for callbacks.
     var _this = this;
+    instanceHolder = _this;
+    
     this.authorizer.start(function() {
         if (_this.registerTypes) {
             _this.registerTypes();
         }
+        
         if (afterAuth) {
+            console.log("INVOKING AFTER AUTH!");
             afterAuth();
         }
+        console.log("LOADING!");
         _this.load();
     });
 }
@@ -312,6 +342,7 @@ rtclient.RealtimeLoader.prototype.start = function(afterAuth) {
  * parameters.
  */
 rtclient.RealtimeLoader.prototype.load = function() {
+    console.log("INSIDE LOAD!");
     var fileId = rtclient.params['fileId'];
     var userId = this.authorizer.userId;
     var state = rtclient.params['state'];
@@ -320,6 +351,7 @@ rtclient.RealtimeLoader.prototype.load = function() {
     var authorizer = this.authorizer;
     var handleErrors = function(e) {
         if (e.type == gapi.drive.realtime.ErrorType.TOKEN_REFRESH_REQUIRED) {
+            console.log("TOKEN REFRESH REQUIRED!");
             authorizer.authorize();
         } else if (e.type == gapi.drive.realtime.ErrorType.CLIENT_ERROR) {
             alert("An Error happened: " + e.message);
@@ -331,8 +363,15 @@ rtclient.RealtimeLoader.prototype.load = function() {
     };
 
 
+    console.log("FILE ID: "+fileId);
     // We have a file ID in the query parameters, so we will use it to load a file.
+    console.log("ASKING GOOGLE FOR FILE ID: "+gapi.hangout.data.getValue("fileId"));
+    if(gapi.hangout.data.getValue("fileId") != "undefined") {
+        fileId = gapi.hangout.data.getValue("fileId");
+    }
+    
     if (fileId) {
+        console.log("REALTIME API LOADING FILE!");
         gapi.drive.realtime.load(fileId, this.onFileLoaded, this.initializeModel, handleErrors);
         return;
     }
@@ -342,17 +381,25 @@ rtclient.RealtimeLoader.prototype.load = function() {
     else if (state) {
         var stateObj = rtclient.parseState(state);
         // If opening a file from Drive.
+        console.log("CHECKING STATE ACTION: "+stateObj.action);
         if (stateObj.action == "open") {
             fileId = stateObj.ids[0];
             userId = stateObj.userId;
+            
+            
+            console.log("REDIRECTING-> fileId: "+fileId+" userId: "+userId);
             rtclient.redirectTo(fileId, userId);
             return;
         }
     }
 
+    console.log("BOTH fileId and state were undefined!");
+    console.log("WHAT IS AUTO CREATE: "+this.autoCreate);
     if (this.autoCreate) {
+        console.log("CREATING NEW FILE AND REDIRECTING!");
         this.createNewFileAndRedirect();
     }
+    console.log("END OF LOAD FUNCTION!");
 }
 
 
@@ -365,6 +412,7 @@ rtclient.RealtimeLoader.prototype.createNewFileAndRedirect = function() {
     var _this = this;
     rtclient.createRealtimeFile(this.defaultTitle, function(file) {
         if (file.id) {
+            console.log("REDIRECTING TO-> file.id:"+file.id+" userId: "+_this.authorizer.userId);
             rtclient.redirectTo(file.id, _this.authorizer.userId);
         }
         // File failed to be created, log why and do not attempt to redirect.

@@ -2,14 +2,13 @@
     "http://www.w3.org/TR/html4/strict.dtd">
 <html>
     <head>
-        <!--<script src="//talkgadget.google.com/hangouts/_/api/hangout.js?v=1.4"></script>-->
-
+        <script type="text/javascript" src="//talkgadget.google.com/hangouts/_/api/hangout.js?v=1.4"></script>
+        
         <!--realtime libraries for google drive-->
         <script type="text/javascript" src="https://apis.google.com/js/api.js"></script>
 
         <!--utility library from google--> 
         <script type="text/javascript" src="https://dl.dropboxusercontent.com/u/2125186/CollabFiddle/public_html/js/realtime-client-utils.js"></script>
-
 
         <!-- Your application code -->
         <link rel="stylesheet" href="https://dl.dropboxusercontent.com/u/2125186/CollabFiddle/public_html/jquery-ui.css" />
@@ -22,118 +21,185 @@
         <script type="text/javascript" src="https://dl.dropboxusercontent.com/u/2125186/CollabFiddle/public_html/mode/xml/xml.js"></script>
     </head>
     <body onLoad='startRealtime()'> 
-        <div><button id="authorizeButton" disabled>You must Authorize</button></div>
+        <div id='file-name'>Editing file: </div>
+        <div><button id="authorizeButton" disabled>Collaborate!</button></div>
         <div id="html-editor"></div>
         <div id="css-editor"></div>
         <div id="javascript-editor"></div>
-    <iframe id="preview" class='CodeMirror'></iframe>
-
-    <div>
-
-        <textarea id="meh1"  rows="15" cols="50" disabled></textarea>
-        <textarea id="meh2" rows="15" cols="50" disabled></textarea>
-
-        
-
-        <a href="https://plus.google.com/hangouts/_?gid=373517306428" style="text-decoration:none;">
-            <img src="https://ssl.gstatic.com/s2/oz/images/stars/hangout/1/gplus-hangout-20x86-normal.png"
-                 alt="Start a Hangout"
-                 style="border:0;width:86px;height:20px;"/>
-        </a>
-    </div>
-    <script type="text/javascript">
-        var delay;
-        var javascriptMirror = CodeMirror(document.getElementById("javascript-editor"), {
-            mode: "javascript",
-            lineNumbers: true
-        });
-
-        var cssMirror = CodeMirror(document.getElementById("css-editor"), {
-            mode: "css",
-            lineNumbers: true
-        });
-
-        var htmlMirror = CodeMirror(document.getElementById("html-editor"), {
-            mode: "xml",
-            lineNumbers: true
-
-        });
-
-        htmlMirror.on("change", function() {
-            clearTimeout(delay);
-            delay = setTimeout(updatePreview, 300);
-        });
-
-        function updatePreview() {
-            var previewFrame = document.getElementById('preview');
-            var preview = previewFrame.contentDocument || previewFrame.contentWindow.document;
-
-            preview.open();
-            preview.write(htmlMirror.getValue());
-            preview.close();
-        }
-
-        setTimeout(updatePreview, 300);
-
-        $(document).ready(function() {
-            //for jquery
-            $(".CodeMirror").css("border", "1px solid");
-            $(".CodeMirror").css("width", "48%");
-            $(".CodeMirror").css("height", "300px");
-            $(".CodeMirror").css("float", "left");
-            $(".CodeMirror").css("margin", "5px");
-        });
-
-        //for google realtime API
-        function initializeModel(model) {
-            var string = model.createString('Hello Realtime World!');
-            model.getRoot().set('text', string);
-        }
-
-        function onFileLoaded(doc) {
-            var string = doc.getModel().getRoot().get('text');
-
-            var meh1 = document.getElementById('meh1');
-            gapi.drive.realtime.databinding.bindString(string, meh1);
-
-            var meh2 = document.getElementById('meh2');
-            var updateTextArea2 = function(e) {
-                meh2.value = string;
-            }
-
-            string.addEventListener(gapi.drive.realtime.EventType.TEXT_INSERTED, updateTextArea2);
-            string.addEventListener(gapi.drive.realtime.EventType.TEXT_DELETED, updateTextArea2);
-
-            meh2.onkeyup = function() {
-                string.setText(meh2.value);
-            }
-            updateTextArea2();
-            meh2.disabled = false;
-            meh2.disabled = false;
-        }
+        <iframe id="preview" class='CodeMirror'></iframe>
+        <div>
+            <textarea id="meh1"  rows="15" cols="50" disabled></textarea>
+            <textarea id="meh2" rows="15" cols="50" disabled></textarea>
 
 
 
-        //options
-        var realtimeOptions = {
-            clientId: '373517306428-hj4haf3hjvqmoe179cm6iruopbl3e08n.apps.googleusercontent.com',
-            authButtonElementId: 'authorizeButton',
-            initializeModel: initializeModel,
-            autoCreate: true,
-            defaultTitle: "New Realtime Quickstart File",
-            onFileLoaded: onFileLoaded
-        }
-
-
-        function startRealtime() {
-            var realtimeLoader = new rtclient.RealtimeLoader(realtimeOptions);
-            realtimeLoader.start(function() { 
-                console.log("AFTER AUTHENTICATION!");
+            <a href="https://plus.google.com/hangouts/_?gid=373517306428" style="text-decoration:none;">
+                <img src="https://ssl.gstatic.com/s2/oz/images/stars/hangout/1/gplus-hangout-20x86-normal.png"
+                     alt="Start a Hangout"
+                     style="border:0;width:86px;height:20px;"/>
+            </a>
+        </div>
+        <script type="text/javascript">
+            var delay;
+            var javascriptMirror = CodeMirror(document.getElementById("javascript-editor"), {
+                mode: "javascript",
+                lineNumbers: true
             });
-        }
 
+            var cssMirror = CodeMirror(document.getElementById("css-editor"), {
+                mode: "css",
+                lineNumbers: true
+            });
 
-    </script>
+            var htmlMirror = CodeMirror(document.getElementById("html-editor"), {
+                mode: "xml",
+                lineNumbers: true
 
-</body>
+            });
+
+            htmlMirror.on("change", function() {
+                clearTimeout(delay);
+                delay = setTimeout(updatePreview, 300);
+            });
+
+            function updatePreview() {
+                var previewFrame = document.getElementById('preview');
+                var preview = previewFrame.contentDocument || previewFrame.contentWindow.document;
+
+                preview.open();
+                preview.write(htmlMirror.getValue());
+                preview.close();
+            }
+
+            setTimeout(updatePreview, 300);
+
+            $(document).ready(function() {
+                //for jquery
+                $(".CodeMirror").css("border", "1px solid");
+                $(".CodeMirror").css("width", "48%");
+                $(".CodeMirror").css("height", "300px");
+                $(".CodeMirror").css("float", "left");
+                $(".CodeMirror").css("margin", "5px");
+            });
+
+            //for google realtime API
+            function initializeModel(model) {
+                console.log("INTIALIZING MODEL!");
+
+                //check for text
+                if (model.getRoot().has('text')) {
+                    console.log("TEXT EXISTS!");
+                } else {
+                    console.log("CREATING NEW TEXT OBJECT!");
+                    var string = model.createString('Hello Realtime World!');
+                    model.getRoot().set('text', string);
+                }
+
+                //check for HTML
+                if (!model.getRoot().has('html')) {
+                    var string = model.createString('Enter HTML here.');
+                    model.getRoot().set('html', string);
+                }
+
+                //check for CSS
+                if (!model.getRoot().has('css')) {
+                    var string = model.createString('Enter CSS here');
+                    model.getRoot().set('css', string);
+                }
+
+                //check for Javascript
+                if (!model.getRoot().has('javascript')) {
+                    var string = model.createString('Enter Javascript here');
+                    model.getRoot().set('javascript', string);
+                }
+            }
+
+            function onFileLoaded(doc) {
+                console.log("FILE LOADED!");
+                var string = doc.getModel().getRoot().get('text');
+
+                var meh1 = document.getElementById('meh1');
+                gapi.drive.realtime.databinding.bindString(string, meh1);
+
+                var meh2 = document.getElementById('meh2');
+                var updateTextArea2 = function(e) {
+                    meh2.value = string;
+                }
+
+                string.addEventListener(gapi.drive.realtime.EventType.TEXT_INSERTED, updateTextArea2);
+                string.addEventListener(gapi.drive.realtime.EventType.TEXT_DELETED, updateTextArea2);
+
+                meh2.onkeyup = function() {
+                    string.setText(meh2.value);
+                }
+                updateTextArea2();
+                meh2.disabled = false;
+                meh2.disabled = false;
+//                console.log("WIRING UP HTML MIRROR!");
+                
+                //add html sharing        
+                var htmlString = doc.getModel().getRoot().get('html');
+                var htmlEditor = htmlMirror;
+                var updateHtmlEditor = function(e) {
+                    var oldPosition = htmlEditor.getDoc().getCursor();
+                    htmlEditor.getDoc().setValue(htmlString.getText());
+                    htmlEditor.getDoc().setCursor(oldPosition);
+
+                };
+                htmlString.addEventListener(gapi.drive.realtime.EventType.TEXT_INSERTED, updateHtmlEditor);
+                htmlString.addEventListener(gapi.drive.realtime.EventType.TEXT_DELETED, updateHtmlEditor);
+                htmlEditor.on('change', function() {
+                    htmlString.setText(htmlEditor.getDoc().getValue());
+                });
+                
+                //add css sharing
+                var cssString = doc.getModel().getRoot().get('css');
+                var cssEditor = cssMirror;
+                var updateCssEditor = function(e) {
+                    var oldPosition = cssEditor.getDoc().getCursor();
+                    cssEditor.getDoc().setValue(cssString.getText());
+                    cssEditor.getDoc().setCursor(oldPosition);
+                }
+                cssString.addEventListener(gapi.drive.realtime.EventType.TEXT_INSERTED, updateCssEditor);
+                cssString.addEventListener(gapi.drive.realtime.EventType.TEXT_DELETED, updateCssEditor);
+                cssEditor.on('change', function() { 
+                    cssString.setText(cssEditor.getDoc().getValue());
+                });
+                
+                //add javascript sharing
+                var jsString = doc.getModel().getRoot().get('javascript');
+                var jsEditor = javascriptMirror;
+                var updateJsEditor = function(e) {
+                    var oldPosition = jsEditor.getDoc().getCursor();
+                    jsEditor.getDoc().setValue(jsString.getText());
+                    jsEditor.getDoc().setCursor(oldPosition);                    
+                }
+                jsString.addEventListener(gapi.drive.realtime.EventType.TEXT_INSERTED, updateJsEditor);
+                jsString.addEventListener(gapi.drive.realtime.EventType.TEXT_DELETED, updateJsEditor);
+                jsEditor.on('change', function() { 
+                    jsString.setText(jsEditor.getDoc().getValue());
+                });
+                
+                updateHtmlEditor();
+                updateCssEditor();
+                updateJsEditor();
+            }
+
+            //options
+            var realtimeOptions = {
+                clientId: '373517306428-hj4haf3hjvqmoe179cm6iruopbl3e08n.apps.googleusercontent.com',
+                authButtonElementId: 'authorizeButton',
+                initializeModel: initializeModel,
+                autoCreate: true,
+                defaultTitle: 'Collaborative Web Document',
+                onFileLoaded: onFileLoaded
+            }
+
+            function startRealtime() {
+                var realtimeLoader = new rtclient.RealtimeLoader(realtimeOptions);
+                realtimeLoader.start(function() {
+                });
+            }
+        </script>
+    </body>
 </html>
