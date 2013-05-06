@@ -365,11 +365,12 @@ rtclient.RealtimeLoader.prototype.load = function() {
 
     console.log("FILE ID: "+fileId);
     // We have a file ID in the query parameters, so we will use it to load a file.
-    console.log("ASKING GOOGLE FOR FILE ID: "+gapi.hangout.data.getValue("fileId"));
-    if(gapi.hangout.data.getValue("fileId") != "undefined") {
-        fileId = gapi.hangout.data.getValue("fileId");
+    if(gapi.hangout.data != "undefined") {
+        console.log("ASKING GOOGLE FOR FILE ID: "+gapi.hangout.data.getValue("fileId"));
+        if(gapi.hangout.data.getValue("fileId") != "undefined") {
+            fileId = gapi.hangout.data.getValue("fileId");
+        }
     }
-    
     if (fileId) {
         console.log("REALTIME API LOADING FILE!");
         gapi.drive.realtime.load(fileId, this.onFileLoaded, this.initializeModel, handleErrors);
