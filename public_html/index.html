@@ -2,7 +2,7 @@
     "http://www.w3.org/TR/html4/strict.dtd">
 <html>
     <head>
-        <script type="text/javascript" src="http://talkgadget.google.com/hangouts/_/api/hangout.js?v=1.4"></script>
+        <!--<script type="text/javascript" src="http://talkgadget.google.com/hangouts/_/api/hangout.js?v=1.4"></script>-->
 
         <!--realtime libraries for google drive-->
         <script type="text/javascript" src="https://apis.google.com/js/api.js"></script>
@@ -11,7 +11,7 @@
         <script type="text/javascript" src="https://dl.dropboxusercontent.com/u/2125186/CollabFiddle/public_html/js/realtime-client-utils.js"></script>
 
         <!-- include jquery libraries and css -->
-       <link rel="stylesheet" href="https://dl.dropboxusercontent.com/u/2125186/CollabFiddle/public_html/jquery-ui.css" />
+        <link rel="stylesheet" href="https://dl.dropboxusercontent.com/u/2125186/CollabFiddle/public_html/jquery-ui.css" />
         <script type="text/javascript" src='https://dl.dropboxusercontent.com/u/2125186/CollabFiddle/public_html/js/libs/jquery-1.9.0/jquery.min.js'></script>
         <script  type="text/javascript" src="https://dl.dropboxusercontent.com/u/2125186/CollabFiddle/public_html/js/libs/jqueryui-1.10.0/jquery-ui.min.js"></script>
 
@@ -21,9 +21,19 @@
         <script type="text/javascript" src="https://dl.dropboxusercontent.com/u/2125186/CollabFiddle/public_html/mode/javascript/javascript.js"></script>
         <script type="text/javascript" src="https://dl.dropboxusercontent.com/u/2125186/CollabFiddle/public_html/mode/css/css.js"></script>
         <script type="text/javascript" src="https://dl.dropboxusercontent.com/u/2125186/CollabFiddle/public_html/mode/xml/xml.js"></script>
+
+        <!-- include custom CSS for slider button -->
+        <link rel="stylesheet" href="https://dl.dropboxusercontent.com/u/2125186/CollabFiddle/public_html/themes/toggles-modern.css" />
+        <script type="text/javascript" src="https://dl.dropboxusercontent.com/u/2125186/CollabFiddle/public_html/toggles.min.js"></script>
+
     </head>
     <body> 
-        <div>
+        <div>            
+            <div id="radio">
+                <input type="radio" id="radio1" name="radio" /><label for="radio1">Single-Player</label>
+                <input type="radio" id="radio2" name="radio" /><label for="radio2">Collaborating</label>
+            </div>
+            
             <button id="authorizeButton" disabled>Collaborate!</button>
             <a href="https://plus.google.com/hangouts/_?gid=373517306428" style="text-decoration:none;">
                 <img src="https://ssl.gstatic.com/s2/oz/images/stars/hangout/1/gplus-hangout-20x86-normal.png"
@@ -31,7 +41,7 @@
                      style="border:0;width:86px;height:20px;"/>
             </a>
         </div>
-        <div id="tabs" style="float:left; width:100%; height:100%">
+        <div id="tabs" style="float:left; width:100%; height:50%">
             <ul>
                 <li><a href="#tabs-1">Development</a></li>
                 <li><a href="#tabs-2">Testing</a></li>
@@ -57,277 +67,281 @@
             </div>
         </div>
         <script type="text/javascript">
-        $(document).ready(function() {
-            var delay;
-            var testDelay;
-            
-            var javascriptMirror = CodeMirror(document.getElementById("javascript-editor"), {
-                mode: "javascript",
-                lineNumbers: true
-            });
-            var cssMirror = CodeMirror(document.getElementById("css-editor"), {
-                mode: "css",
-                lineNumbers: true
-            });
-            var htmlMirror = CodeMirror(document.getElementById("html-editor"), {
-                mode: "xml",
-                lineNumbers: true
-            });
-            var javascriptModelMirror = CodeMirror(document.getElementById("javascript-model-editor"),{
-                mode:"javascript",
-                lineNumbers:true
-            });
-            var javascriptTestMirror = CodeMirror(document.getElementById("javascript-test-editor"), {
-                mode: "javascript",
-                lineNumbers: true
-            });
+            $(document).ready(function() {               
 
-            javascriptModelMirror.on("change", function() { 
-                clearTimeout(testDelay);
-                testDelay = setTimeout(updateTestResults, 300);
-            });            
-            javascriptTestMirror.on("change", function() {
-                clearTimeout(testDelay);
-                testDelay = setTimeout(updateTestResults, 300);
-            });
-            htmlMirror.on("change", function() {
-                clearTimeout(delay);
-                delay = setTimeout(updatePreview, 300);
-            });
+                $("#radio").buttonset();
 
-            function updatePreview() {
-                var previewFrame = document.getElementById('preview');
-                var preview = previewFrame.contentDocument || previewFrame.contentWindow.document;
 
-                preview.open();
-                preview.write(htmlMirror.getValue());
-                preview.close();
-            }
+                var delay;
+                var testDelay;
 
-            function updateTestResults() {
-                var testResultsFrame = document.getElementById('test-results');
-                var testResults = testResultsFrame.contentDocument || testResultsFrame.contentWindow.document;
+                var javascriptMirror = CodeMirror(document.getElementById("javascript-editor"), {
+                    mode: "javascript",
+                    lineNumbers: true
+                });
+                var cssMirror = CodeMirror(document.getElementById("css-editor"), {
+                    mode: "css",
+                    lineNumbers: true
+                });
+                var htmlMirror = CodeMirror(document.getElementById("html-editor"), {
+                    mode: "xml",
+                    lineNumbers: true
+                });
+                var javascriptModelMirror = CodeMirror(document.getElementById("javascript-model-editor"), {
+                    mode: "javascript",
+                    lineNumbers: true
+                });
+                var javascriptTestMirror = CodeMirror(document.getElementById("javascript-test-editor"), {
+                    mode: "javascript",
+                    lineNumbers: true
+                });
 
-                var template1 = "<!DOCTYPE html><html>";
-                template1 += "<head>";
-                template1 += "<meta charset='utf-8'>";
-                template1 += "<title>Tests!</title>";
-                template1 += "<link rel=\"stylesheet\" href=\"https://dl.dropboxusercontent.com/u/2125186/CollabFiddle/public_html/qunit.css\" />";
-                template1 += "</head>";
-                template1 += "<body>";
-                template1 += "<div id='qunit'></div> <div id='qunit-fixture'></div>";
-                template1 += "<script type=\"text/javascript\" \n\
+                javascriptModelMirror.on("change", function() {
+                    clearTimeout(testDelay);
+                    testDelay = setTimeout(updateTestResults, 300);
+                });
+                javascriptTestMirror.on("change", function() {
+                    clearTimeout(testDelay);
+                    testDelay = setTimeout(updateTestResults, 300);
+                });
+                htmlMirror.on("change", function() {
+                    clearTimeout(delay);
+                    delay = setTimeout(updatePreview, 300);
+                });
+
+                function updatePreview() {
+                    var previewFrame = document.getElementById('preview');
+                    var preview = previewFrame.contentDocument || previewFrame.contentWindow.document;
+
+                    preview.open();
+                    preview.write(htmlMirror.getValue());
+                    preview.close();
+                }
+
+                function updateTestResults() {
+                    var testResultsFrame = document.getElementById('test-results');
+                    var testResults = testResultsFrame.contentDocument || testResultsFrame.contentWindow.document;
+
+                    var template1 = "<!DOCTYPE html><html>";
+                    template1 += "<head>";
+                    template1 += "<meta charset='utf-8'>";
+                    template1 += "<title>Tests!</title>";
+                    template1 += "<link rel=\"stylesheet\" href=\"https://dl.dropboxusercontent.com/u/2125186/CollabFiddle/public_html/qunit.css\" />";
+                    template1 += "</head>";
+                    template1 += "<body>";
+                    template1 += "<div id='qunit'></div> <div id='qunit-fixture'></div>";
+                    template1 += "<script type=\"text/javascript\" \n\
                                            src=\"https://dl.dropboxusercontent.com/u/2125186/CollabFiddle/public_html/js/libs/qunit.js\">";
 
-                template1 += "<\/script>";
-                template1 += "<script>";
-                template1 += javascriptModelMirror.getValue();
-                template1 += "\n";
-                template1 += javascriptTestMirror.getValue();
-                template1 += "<\/script>";
-                template1 += "</body>";
-                template1 += "</html>";
+                    template1 += "<\/script>";
+                    template1 += "<script>";
+                    template1 += javascriptModelMirror.getValue();
+                    template1 += "\n";
+                    template1 += javascriptTestMirror.getValue();
+                    template1 += "<\/script>";
+                    template1 += "</body>";
+                    template1 += "</html>";
 
-                testResults.open();
-                testResults.write(template1);
-                testResults.close();
-            }
+                    testResults.open();
+                    testResults.write(template1);
+                    testResults.close();
+                }
 
-            setTimeout(updatePreview, 300);
-            setTimeout(updateTestResults, 300);
+                setTimeout(updatePreview, 300);
+                setTimeout(updateTestResults, 300);
 
-            $("#tabs").tabs();
+                $("#tabs").tabs();
 
-            //for jquery
-            $(".CodeMirror-1").css("border", "1px solid");
-            $(".CodeMirror-1").css("width", "48%");
-            $(".CodeMirror-1").css("height", "300px");
-            $(".CodeMirror-1").css("float", "left");
-            $(".CodeMirror-1").css("margin", "5px");
+                //for jquery
+                $(".CodeMirror-1").css("border", "1px solid");
+                $(".CodeMirror-1").css("width", "48%");
+                $(".CodeMirror-1").css("height", "300px");
+                $(".CodeMirror-1").css("float", "left");
+                $(".CodeMirror-1").css("margin", "5px");
 
-            $(".CodeMirror-2").css("border", "1px solid");
-            $(".CodeMirror-2").css("height", "auto");
-            $(".CodeMirror-2").css("width", "75%");
-            $(".CodeMirror-2").css("margin", "5px");
-            
-            $("#test-results").css("border", "1px solid");
-            $("#test-results").css("float", "bottom");
-            $("#test-results").css("width", "99%");
-            $("#test-results").css("height", "500px");
-            $("#test-results-div").css("width", "50%");
-            $("#test-results-div").css("margin-left", "auto");
-            $("#test-results-div").css("margin-right", "auto");
+                $(".CodeMirror-2").css("border", "1px solid");
+                $(".CodeMirror-2").css("height", "auto");
+                $(".CodeMirror-2").css("width", "75%");
+                $(".CodeMirror-2").css("margin", "5px");
+
+                $("#test-results").css("border", "1px solid");
+                $("#test-results").css("float", "bottom");
+                $("#test-results").css("width", "99%");
+                $("#test-results").css("height", "500px");
+                $("#test-results-div").css("width", "50%");
+                $("#test-results-div").css("margin-left", "auto");
+                $("#test-results-div").css("margin-right", "auto");
 //            $("#test-results-div").css("height", "500px");
-            
 
-            //for google realtime API
-            function initializeModel(model) {
-                console.log("INTIALIZING MODEL!");
 
-                //check for text
-                if (model.getRoot().has('text')) {
-                    console.log("TEXT EXISTS!");
-                } else {
-                    console.log("CREATING NEW TEXT OBJECT!");
-                    var string = model.createString('Hello Realtime World!');
-                    model.getRoot().set('text', string);
+                //for google realtime API
+                function initializeModel(model) {
+                    console.log("INTIALIZING MODEL!");
+
+                    //check for text
+                    if (model.getRoot().has('text')) {
+                        console.log("TEXT EXISTS!");
+                    } else {
+                        console.log("CREATING NEW TEXT OBJECT!");
+                        var string = model.createString('Hello Realtime World!');
+                        model.getRoot().set('text', string);
+                    }
+
+                    //check for HTML
+                    if (!model.getRoot().has('html')) {
+                        var string = model.createString('Enter HTML here.');
+                        model.getRoot().set('html', string);
+                    }
+
+                    //check for CSS
+                    if (!model.getRoot().has('css')) {
+                        var string = model.createString('Enter CSS here');
+                        model.getRoot().set('css', string);
+                    }
+
+                    //check for Javascript
+                    if (!model.getRoot().has('javascript')) {
+                        var string = model.createString('Enter Javascript here');
+                        model.getRoot().set('javascript', string);
+                    }
+
+                    //check for Javascript model
+                    if (!model.getRoot().has('javascript-model')) {
+                        var string = model.createString("var obj = new Object();");
+                        model.getRoot().set('javascript-model', string);
+                    }
+
+                    //check for Javascript tests
+                    if (!model.getRoot().has('javascript-tests')) {
+                        var string = model.createString("Enter Javascript test here");
+                        model.getRoot().set('javascript-tests', string);
+                    }
                 }
 
-                //check for HTML
-                if (!model.getRoot().has('html')) {
-                    var string = model.createString('Enter HTML here.');
-                    model.getRoot().set('html', string);
-                }
+                function onFileLoaded(doc) {
+                    console.log("FILE LOADED!");
+                    var string = doc.getModel().getRoot().get('text');
 
-                //check for CSS
-                if (!model.getRoot().has('css')) {
-                    var string = model.createString('Enter CSS here');
-                    model.getRoot().set('css', string);
-                }
+                    var meh1 = document.getElementById('meh1');
+                    gapi.drive.realtime.databinding.bindString(string, meh1);
 
-                //check for Javascript
-                if (!model.getRoot().has('javascript')) {
-                    var string = model.createString('Enter Javascript here');
-                    model.getRoot().set('javascript', string);
-                }
-                
-                //check for Javascript model
-                if(!model.getRoot().has('javascript-model')) {
-                    var string = model.createString("var obj = new Object();");
-                    model.getRoot().set('javascript-model', string);
-                }
+                    var meh2 = document.getElementById('meh2');
+                    var updateTextArea2 = function(e) {
+                        meh2.value = string;
+                    }
 
-                //check for Javascript tests
-                if (!model.getRoot().has('javascript-tests')) {
-                    var string = model.createString("Enter Javascript test here");
-                    model.getRoot().set('javascript-tests', string);
-                }
-            }
+                    string.addEventListener(gapi.drive.realtime.EventType.TEXT_INSERTED, updateTextArea2);
+                    string.addEventListener(gapi.drive.realtime.EventType.TEXT_DELETED, updateTextArea2);
 
-            function onFileLoaded(doc) {
-                console.log("FILE LOADED!");
-                var string = doc.getModel().getRoot().get('text');
-
-                var meh1 = document.getElementById('meh1');
-                gapi.drive.realtime.databinding.bindString(string, meh1);
-
-                var meh2 = document.getElementById('meh2');
-                var updateTextArea2 = function(e) {
-                    meh2.value = string;
-                }
-
-                string.addEventListener(gapi.drive.realtime.EventType.TEXT_INSERTED, updateTextArea2);
-                string.addEventListener(gapi.drive.realtime.EventType.TEXT_DELETED, updateTextArea2);
-
-                meh2.onkeyup = function() {
-                    string.setText(meh2.value);
-                }
-                updateTextArea2();
-                meh2.disabled = false;
-                meh2.disabled = false;
+                    meh2.onkeyup = function() {
+                        string.setText(meh2.value);
+                    }
+                    updateTextArea2();
+                    meh2.disabled = false;
+                    meh2.disabled = false;
 //                console.log("WIRING UP HTML MIRROR!");
 
-                //add html sharing        
-                var htmlString = doc.getModel().getRoot().get('html');
-                var htmlEditor = htmlMirror;
-                var updateHtmlEditor = function(e) {
-                    var oldPosition = htmlEditor.getDoc().getCursor();
-                    htmlEditor.getDoc().setValue(htmlString.getText());
-                    htmlEditor.getDoc().setCursor(oldPosition);
+                    //add html sharing        
+                    var htmlString = doc.getModel().getRoot().get('html');
+                    var htmlEditor = htmlMirror;
+                    var updateHtmlEditor = function(e) {
+                        var oldPosition = htmlEditor.getDoc().getCursor();
+                        htmlEditor.getDoc().setValue(htmlString.getText());
+                        htmlEditor.getDoc().setCursor(oldPosition);
 
-                };
-                htmlString.addEventListener(gapi.drive.realtime.EventType.TEXT_INSERTED, updateHtmlEditor);
-                htmlString.addEventListener(gapi.drive.realtime.EventType.TEXT_DELETED, updateHtmlEditor);
-                htmlEditor.on('change', function() {
-                    htmlString.setText(htmlEditor.getDoc().getValue());
-                });
+                    };
+                    htmlString.addEventListener(gapi.drive.realtime.EventType.TEXT_INSERTED, updateHtmlEditor);
+                    htmlString.addEventListener(gapi.drive.realtime.EventType.TEXT_DELETED, updateHtmlEditor);
+                    htmlEditor.on('change', function() {
+                        htmlString.setText(htmlEditor.getDoc().getValue());
+                    });
 
-                //add css sharing
-                var cssString = doc.getModel().getRoot().get('css');
-                var cssEditor = cssMirror;
-                var updateCssEditor = function(e) {
-                    var oldPosition = cssEditor.getDoc().getCursor();
-                    cssEditor.getDoc().setValue(cssString.getText());
-                    cssEditor.getDoc().setCursor(oldPosition);
+                    //add css sharing
+                    var cssString = doc.getModel().getRoot().get('css');
+                    var cssEditor = cssMirror;
+                    var updateCssEditor = function(e) {
+                        var oldPosition = cssEditor.getDoc().getCursor();
+                        cssEditor.getDoc().setValue(cssString.getText());
+                        cssEditor.getDoc().setCursor(oldPosition);
+                    }
+                    cssString.addEventListener(gapi.drive.realtime.EventType.TEXT_INSERTED, updateCssEditor);
+                    cssString.addEventListener(gapi.drive.realtime.EventType.TEXT_DELETED, updateCssEditor);
+                    cssEditor.on('change', function() {
+                        cssString.setText(cssEditor.getDoc().getValue());
+                    });
+
+                    //add javascript sharing
+                    var jsString = doc.getModel().getRoot().get('javascript');
+                    var jsEditor = javascriptMirror;
+                    var updateJsEditor = function(e) {
+                        var oldPosition = jsEditor.getDoc().getCursor();
+                        jsEditor.getDoc().setValue(jsString.getText());
+                        jsEditor.getDoc().setCursor(oldPosition);
+                    }
+                    jsString.addEventListener(gapi.drive.realtime.EventType.TEXT_INSERTED, updateJsEditor);
+                    jsString.addEventListener(gapi.drive.realtime.EventType.TEXT_DELETED, updateJsEditor);
+                    jsEditor.on('change', function() {
+                        jsString.setText(jsEditor.getDoc().getValue());
+                    });
+
+                    //add javascript model sharing
+                    var jsModel = doc.getModel().getRoot().get('javascript-model');
+                    var jsModelEditor = javascriptModelMirror;
+                    var updateJsModelEditor = function(e) {
+                        var position = jsModelEditor.getDoc().getCursor();
+                        jsModelEditor.getDoc().setValue(jsModel.getText());
+                        jsModelEditor.getDoc().setCursor(position);
+                    }
+                    jsModel.addEventListener(gapi.drive.realtime.EventType.TEXT_INSERTED, updateJsModelEditor);
+                    jsModel.addEventListener(gapi.drive.realtime.EventType.TEXT_DELETED, updateJsModelEditor);
+                    jsModelEditor.on('change', function() {
+                        jsModel.setText(jsModelEditor.getDoc().getValue());
+                    });
+
+                    //add javascript test sharing
+                    var testString = doc.getModel().getRoot().get('javascript-tests');
+                    var testEditor = javascriptTestMirror;
+                    var updateTestEditor = function(e) {
+                        var oldPosition = testEditor.getDoc().getCursor();
+                        testEditor.getDoc().setValue(testString.getText());
+                        testEditor.getDoc().setCursor(oldPosition);
+
+                    }
+                    testString.addEventListener(gapi.drive.realtime.EventType.TEXT_INSERTED, updateTestEditor);
+                    testString.addEventListener(gapi.drive.realtime.EventType.TEXT_DELETED, updateTestEditor);
+                    testEditor.on('change', function() {
+                        testString.setText(testEditor.getDoc().getValue());
+                    });
+
+                    updateHtmlEditor();
+                    updateCssEditor();
+                    updateJsEditor();
+                    updateJsModelEditor();
+                    updateTestEditor();
                 }
-                cssString.addEventListener(gapi.drive.realtime.EventType.TEXT_INSERTED, updateCssEditor);
-                cssString.addEventListener(gapi.drive.realtime.EventType.TEXT_DELETED, updateCssEditor);
-                cssEditor.on('change', function() {
-                    cssString.setText(cssEditor.getDoc().getValue());
-                });
 
-                //add javascript sharing
-                var jsString = doc.getModel().getRoot().get('javascript');
-                var jsEditor = javascriptMirror;
-                var updateJsEditor = function(e) {
-                    var oldPosition = jsEditor.getDoc().getCursor();
-                    jsEditor.getDoc().setValue(jsString.getText());
-                    jsEditor.getDoc().setCursor(oldPosition);
+                //options
+                var realtimeOptions = {
+                    clientId: '373517306428-hj4haf3hjvqmoe179cm6iruopbl3e08n.apps.googleusercontent.com',
+                    authButtonElementId: 'authorizeButton',
+                    initializeModel: initializeModel,
+                    autoCreate: true,
+                    defaultTitle: 'Collaborative Web Document',
+                    onFileLoaded: onFileLoaded
                 }
-                jsString.addEventListener(gapi.drive.realtime.EventType.TEXT_INSERTED, updateJsEditor);
-                jsString.addEventListener(gapi.drive.realtime.EventType.TEXT_DELETED, updateJsEditor);
-                jsEditor.on('change', function() {
-                    jsString.setText(jsEditor.getDoc().getValue());
-                });
 
-                //add javascript model sharing
-                var jsModel = doc.getModel().getRoot().get('javascript-model');
-                var jsModelEditor = javascriptModelMirror;
-                var updateJsModelEditor = function(e) {
-                    var position = jsModelEditor.getDoc().getCursor();
-                    jsModelEditor.getDoc().setValue(jsModel.getText());
-                    jsModelEditor.getDoc().setCursor(position);
+                function startRealtime() {
+                    var realtimeLoader = new rtclient.RealtimeLoader(realtimeOptions);
+                    realtimeLoader.start(function() {
+
+                        var defaultCanvas = gapi.hangout.layout.getVideoCanvas();
+                        defaultCanvas.setPosition(0, 0);
+                    });
                 }
-                jsModel.addEventListener(gapi.drive.realtime.EventType.TEXT_INSERTED, updateJsModelEditor);
-                jsModel.addEventListener(gapi.drive.realtime.EventType.TEXT_DELETED, updateJsModelEditor);
-                jsModelEditor.on('change', function() { 
-                    jsModel.setText(jsModelEditor.getDoc().getValue());
-                });
 
-                //add javascript test sharing
-                var testString = doc.getModel().getRoot().get('javascript-tests');
-                var testEditor = javascriptTestMirror;
-                var updateTestEditor = function(e) {
-                    var oldPosition = testEditor.getDoc().getCursor();
-                    testEditor.getDoc().setValue(testString.getText());
-                    testEditor.getDoc().setCursor(oldPosition);
-
-                }
-                testString.addEventListener(gapi.drive.realtime.EventType.TEXT_INSERTED, updateTestEditor);
-                testString.addEventListener(gapi.drive.realtime.EventType.TEXT_DELETED, updateTestEditor);
-                testEditor.on('change', function() {
-                    testString.setText(testEditor.getDoc().getValue());
-                });
-
-                updateHtmlEditor();
-                updateCssEditor();
-                updateJsEditor();
-                updateJsModelEditor();
-                updateTestEditor();
-            }
-
-            //options
-            var realtimeOptions = {
-                clientId: '373517306428-hj4haf3hjvqmoe179cm6iruopbl3e08n.apps.googleusercontent.com',
-                authButtonElementId: 'authorizeButton',
-                initializeModel: initializeModel,
-                autoCreate: true,
-                defaultTitle: 'Collaborative Web Document',
-                onFileLoaded: onFileLoaded
-            }
-
-            function startRealtime() {
-                var realtimeLoader = new rtclient.RealtimeLoader(realtimeOptions);
-                realtimeLoader.start(function() {
-
-                    var defaultCanvas = gapi.hangout.layout.getVideoCanvas();
-                    defaultCanvas.setPosition(0, 0);
-                });
-            }
-            
-            startRealtime();
-            $("#tabs").tabs('refresh');
-        });
+                startRealtime();
+                $("#tabs").tabs('refresh');
+            });
         </script>
     </body>
 </html>
